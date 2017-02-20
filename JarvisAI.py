@@ -10,6 +10,7 @@ from apiclient.errors import HttpError
 from oauth2client.tools import argparser
 import subprocess
 import random
+import urllib2
 #from google import search
 
 DEVELOPER_KEY = ""
@@ -17,7 +18,16 @@ YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
 tellMeSomethingArray = ["You're the smartest person in the world", "You're doing a great job", "The time is {0}".format(str(ctime())),
-                        "You look nice today", "You should be happier because your life is awesome", "I love you"]
+                        "You look nice today", "You should be happier because your life is awesome", "I love you",
+                        "Life is ten percent what happens to you and ninety percent how you react to it",
+                        "Do not take life too seriously, you will never get out of it alive",
+                        "Life isn't about finding yourself, life is about creating yourself",
+                        "You only live once, but if you do it right, once is enough",
+                        "Everything you can imagine is real",
+                        "After all this time? Always", "Yesterday is history. Tomorrow is a mystery. Today is a gift. That's why it's called the present",
+                        "Life is about failing. Living is about getting back up",
+                        "Life is too short. Enjoy it while it is yours","Worry less, smile more", "Life is an argument you can't win",
+                        "Don't trust too much. Don't love too much. Don't hope too much. Because that too much can hurt you"]
 greetingArray = ["I am fine, thank you. How about you", "I am doing well. How about you", "Thank you so much for asking, I'm doing well. How about you",
                 "I am feeling awesome. How about you"]
 helloArray = ["Hi baby, what can I do for you", "What's up", "How can I help you baby", "Hi baby, I'm listening"]
@@ -121,6 +131,9 @@ def jarvis(data):
         speak("Here is what I found")
         webbrowser.open_new('https://www.google.com/search?q={0}'.format(name))
 
+    if "friend" in data:
+        greetingFriend()
+
 
 def youtube_search(options):
     youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
@@ -169,6 +182,12 @@ def greeting():
             speak("Good afternoon baby, what can I do for you")
         else:
             speak("Good evening baby, what can I do for you")
+def greetingFriend():
+    speak("Hi, my name is Jarvis. What's your name")
+    data = recordAudio()
+    data = data.split(" ")
+    data = data[-1]
+    speak("Hi, {0}, nice to meet you".format(data))
 # initialization
 time.sleep(2)
 greeting()
@@ -179,3 +198,6 @@ while 1:
         break
     jarvis(data)
     data = ""
+# response = urllib2.urlopen("http://google.com") 
+# page_source = response.read()
+# print page_source.split(" ")
