@@ -11,6 +11,7 @@ from oauth2client.tools import argparser
 import subprocess
 import random
 import urllib2
+from HTMLParser import HTMLParser
 #from google import search
 
 DEVELOPER_KEY = ""
@@ -32,6 +33,24 @@ greetingArray = ["I am fine, thank you. How about you", "I am doing well. How ab
                 "I am feeling awesome. How about you"]
 helloArray = ["Hi baby, what can I do for you", "What's up", "How can I help you baby", "Hi baby, I'm listening"]
  
+global arr
+arr = []
+class MyHTMLParser(HTMLParser):
+    def handle_data(self, data):
+        array = []
+        d = ""
+        if "\xe2\x80\x9c" in data:
+            for i in range(3, len(data)):
+                if data[i] == "\xe2" or data[i] == "\x80" or data[i] == "\x93" or data[i] == "\x9d" or data[i] == "\x99" or data[i] == "\xc2" or data[i] == "\xa0" or data[i] == "\xa6":
+                    continue
+                d += data[i]
+            if len(d) > 0 and d[-1] == ".":
+                arr.append(d)
+
+
+
+
+
 def speak(audioString):
     print(audioString)
     tts = gTTS(text=audioString, lang='en')
@@ -75,8 +94,9 @@ def jarvis(data):
             speak("Let's chill")
  
     if "tell me something" in data:
-        num = random.randint(0, len(tellMeSomethingArray)-1)
-        speak(tellMeSomethingArray[num])
+        num = random.randint(0, len(arr)-1)
+        speak(arr[num])
+
     if "thank you" in data:
         speak("You're welcome")
 
@@ -188,9 +208,21 @@ def greetingFriend():
     data = data.split(" ")
     data = data[-1]
     speak("Hi, {0}, nice to meet you".format(data))
+
+
 # initialization
 time.sleep(2)
 greeting()
+parser = MyHTMLParser()
+response = urllib2.urlopen("http://www.positivityblog.com/index.php/2014/03/19/self-esteem-quotes/") 
+#response2 = urllib2.urlopen("http://www.positivityblog.com/index.php/2017/02/08/failure-quotes/")
+#rand = random.randint(0,1)
+# if rand == 0:
+#   response = response1
+# else:
+#   response = response2
+page_source = response.read()
+parser.feed(page_source)
 while 1:
     data = recordAudio()
     if "bye" in data:
@@ -198,6 +230,4 @@ while 1:
         break
     jarvis(data)
     data = ""
-# response = urllib2.urlopen("http://google.com") 
-# page_source = response.read()
-# print page_source.split(" ")
+
