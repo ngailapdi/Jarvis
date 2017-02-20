@@ -20,6 +20,7 @@ tellMeSomethingArray = ["You're the smartest person in the world", "You're doing
                         "You look nice today", "You should be happier because your life is awesome", "I love you"]
 greetingArray = ["I am fine, thank you. How about you", "I am doing well. How about you", "Thank you so much for asking, I'm doing well. How about you",
                 "I am feeling awesome. How about you"]
+helloArray = ["Hi baby, what can I do for you", "What's up", "How can I help you baby", "Hi baby, I'm listening"]
  
 def speak(audioString):
     print(audioString)
@@ -32,10 +33,10 @@ def recordAudio():
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Say something!")
-	try:
-		audio = r.listen(source)
-	except Error:
-		os.system("say 'hi'")
+    try:
+        audio = r.listen(source)
+    except Error:
+        os.system("say 'hi'")
  
     # Speech recognition using Google Speech Recognition
     data = ""
@@ -70,7 +71,7 @@ def jarvis(data):
         speak("You're welcome")
 
     if "what time is it" in data:
-		speak("The time is {0}".format(str(ctime())))
+        speak("The time is {0}".format(str(ctime())))
 
     if "who made you" in data:
         speak("Anh Thai")
@@ -155,9 +156,22 @@ def youtube_search(options):
     #print "Channels: " + str(channels), "\n"
     #print "Playlists:\n", "\n".join(playlists), "\n"
     return videos
+def greeting():
+    number = random.randint(0,1)
+    if number == 0:
+        num = random.randint(0, len(helloArray) - 1)
+        speak(helloArray[num])
+    else:
+        t = ctime().split(" ")[3].split(":")[0]
+        if 0 <= t <= 11:
+            speak("Good morning baby, what can I do for you")
+        elif 12 <= t <= 18:
+            speak("Good afternoon baby, what can I do for you")
+        else:
+            speak("Good evening baby, what can I do for you")
 # initialization
 time.sleep(2)
-speak("Hi baby, what can I do for you?")
+greeting()
 while 1:
     data = recordAudio()
     if "bye" in data:
