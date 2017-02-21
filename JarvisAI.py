@@ -32,6 +32,7 @@ tellMeSomethingArray = ["You're the smartest person in the world", "You're doing
 greetingArray = ["I am fine, thank you. How about you", "I am doing well. How about you", "Thank you so much for asking, I'm doing well. How about you",
                 "I am feeling awesome. How about you"]
 helloArray = ["Hi baby, what can I do for you", "What's up", "How can I help you baby", "Hi baby, I'm listening"]
+dataTrain = ["zero", "one", "two", "three", "four"]
  
 global arr
 arr = []
@@ -155,7 +156,10 @@ def jarvis(data):
 
     if "friend" in data:
         greetingFriend()
-
+    if "stupid" in data:
+        speak("Come on, it's not very nice")
+    if "a" in data or "hey" in data or "see" in data:
+        train()
     else:
         speak("I don't quite understand what you said")
 
@@ -214,7 +218,6 @@ def greetingFriend():
     data = data[-1]
     speak("Hi, {0}, nice to meet you".format(data))
 
-
 # initialization
 time.sleep(2)
 greeting()
@@ -235,4 +238,5 @@ while 1:
         break
     jarvis(data)
     data = ""
+
 
