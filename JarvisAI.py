@@ -84,7 +84,7 @@ def recordAudio():
     return data
  
 def jarvis(data):
-    if "what's your name" in data:
+    if "what's your name" in data or "what is your name" in data:
         speak("My name is Jarvis. Nice to meet you")
     if "how are you" in data:
         num = random.randint(0, len(greetingArray) - 1)
@@ -155,6 +155,9 @@ def jarvis(data):
 
     if "friend" in data:
         greetingFriend()
+
+    else:
+        speak("I don't quite understand what you said")
 
 
 def youtube_search(options):
@@ -227,7 +230,7 @@ page_source = response.read()
 parser.feed(page_source)
 while 1:
     data = recordAudio()
-    if "bye" in data:
+    if "bye" in data or "leaving" in data:
         speak("Goodbye")
         break
     jarvis(data)
