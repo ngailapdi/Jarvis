@@ -12,6 +12,8 @@ import subprocess
 import random
 import urllib2
 from HTMLParser import HTMLParser
+import sys
+from twilio.rest import TwilioRestClient
 #from google import search
 
 DEVELOPER_KEY = ""
@@ -158,10 +160,12 @@ def jarvis(data):
         greetingFriend()
     if "stupid" in data:
         speak("Come on, it's not very nice")
-    if "a" in data or "hey" in data or "see" in data:
+    if "ABC" in data or "hey" in data or "see" in data:
         train()
-    else:
-        speak("I don't quite understand what you said")
+    if "send message" in data:
+        sendMessage()
+    #else:
+    #    speak("I don't quite understand what you said")
 
 
 def youtube_search(options):
@@ -218,6 +222,52 @@ def greetingFriend():
     data = data[-1]
     speak("Hi, {0}, nice to meet you".format(data))
 
+dataTrain = ["zero", "one", "two", "three", "four"]
+data = ""
+def train():
+    file = open('train.txt','r')
+    list = []
+    for line in file:
+        list.append(float(line[0:len(line)-1]))
+    #print "List " + str(list)
+    index = dummySetUpTrain(list)
+    speak(dataTrain[index])
+    data = recordAudio()
+    if "like" in data:
+        list[index] += 1
+    elif "don't" in data:
+        list[index] -= 1
+    file1 = open('train.txt', 'w')
+    for i in range(0, len(list)):
+        file1.write(str(list[i])+"\n")
+
+def dummySetUpTrain(list):
+    myList = [list[i] for i in range(0, len(list))]
+    print myList
+    for i in range(1, len(myList)):
+        myList[i] += myList[i-1]
+    print "MyList " + str(myList)
+    number = random.randint(0, myList[len(myList)-1])
+    print "Number " + str(number)
+    if number <= myList[0]:
+        return 0
+    if number > myList[-1]:
+        return -1
+    for i in range(1, len(myList)):
+        if number <= myList[i] and number > myList[i-1]:
+            return i
+
+ACCOUNT_SID = "" 
+AUTH_TOKEN = "" 
+ 
+def sendMessage():
+    client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN) 
+     
+    client.messages.create(
+        to="", 
+        from_="", 
+        body="Goodnight!", 
+    )
 # initialization
 time.sleep(2)
 greeting()
