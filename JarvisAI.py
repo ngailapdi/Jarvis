@@ -14,102 +14,61 @@ import urllib2
 from HTMLParser import HTMLParser
 import sys
 from twilio.rest import TwilioRestClient
+import HTMLReader
+import mainFunction
 #from google import search
 
 DEVELOPER_KEY = ""
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
-tellMeSomethingArray = ["You're the smartest person in the world", "You're doing a great job", "The time is {0}".format(str(ctime())),
-                        "You look nice today", "You should be happier because your life is awesome", "I love you",
-                        "Life is ten percent what happens to you and ninety percent how you react to it",
-                        "Do not take life too seriously, you will never get out of it alive",
-                        "Life isn't about finding yourself, life is about creating yourself",
-                        "You only live once, but if you do it right, once is enough",
-                        "Everything you can imagine is real",
-                        "After all this time? Always", "Yesterday is history. Tomorrow is a mystery. Today is a gift. That's why it's called the present",
-                        "Life is about failing. Living is about getting back up",
-                        "Life is too short. Enjoy it while it is yours","Worry less, smile more", "Life is an argument you can't win",
-                        "Don't trust too much. Don't love too much. Don't hope too much. Because that too much can hurt you"]
 greetingArray = ["I am fine, thank you. How about you", "I am doing well. How about you", "Thank you so much for asking, I'm doing well. How about you",
                 "I am feeling awesome. How about you"]
 helloArray = ["Hi baby, what can I do for you", "What's up", "How can I help you baby", "Hi baby, I'm listening"]
 dataTrain = ["zero", "one", "two", "three", "four"]
  
-global arr
-arr = []
-class MyHTMLParser(HTMLParser):
-    def handle_data(self, data):
-        array = []
-        d = ""
-        if "\xe2\x80\x9c" in data:
-            for i in range(3, len(data)):
-                if data[i] == "\xe2" or data[i] == "\x80" or data[i] == "\x93" or data[i] == "\x9d" or data[i] == "\x99" or data[i] == "\xc2" or data[i] == "\xa0" or data[i] == "\xa6":
-                    continue
-                d += data[i]
-            if len(d) > 0 and d[-1] == ".":
-                arr.append(d)
+
+#TO DO: find a way not to hard code \xe2\x80\x9c, maybe using UNICODE
 
 
 
 
+# Main functions: speak, recordAudio and jarvis
 
-def speak(audioString):
-    print(audioString)
-    tts = gTTS(text=audioString, lang='en')
-    tts.save("audio.mp3")
-    playsound('audio.mp3')
- 
-def recordAudio():
-    # Record Audio
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("Say something!")
-    try:
-        audio = r.listen(source)
-    except Error:
-        os.system("say 'hi'")
- 
-    # Speech recognition using Google Speech Recognition
-    data = ""
-    try:
-        # Uses the default API key
-        # To use another API key: `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
-        data = r.recognize_google(audio)
-        print("You said: " + data)
-    except sr.UnknownValueError:
-        print("Google Speech Recognition could not understand audio")
-    except sr.RequestError as e:
-        print("Could not request results from Google Speech Recognition service; {0}".format(e))
-    except sr.LookUpError:
-        speak("Sorry, I couldn't understand")
- 
-    return data
  
 def jarvis(data):
     if "what's your name" in data or "what is your name" in data:
-        speak("My name is Jarvis. Nice to meet you")
+        mainFunction.speak("My name is Jarvis. Nice to meet you")
     if "how are you" in data:
         num = random.randint(0, len(greetingArray) - 1)
-        speak(greetingArray[num])
+        mainFunction.speak(greetingArray[num])
         data = recordAudio()
         if "good" in data or "fine" in data:
-            speak("Nice to hear")
+            mainFunction.speak("Nice to hear")
         else:
-            speak("Let's chill")
+            mainFunction.speak("Let's chill")
  
     if "tell me something" in data:
-        num = random.randint(0, len(arr)-1)
-        speak(arr[num])
+        if HTMLReader.arr != []:
+           num = random.randint(0, len(HTMLReader.arr)-1)
+           mainFunction.speak(HTMLReader.arr[num])
+        else:
+            parser = HTMLReader.MyHTMLParser()
+            response = urllib2.urlopen("http://www.positivityblog.com/index.php/2014/03/19/self-esteem-quotes/") 
+            page_source = response.read()
+            parser.feed(page_source)
+            print "First"
+            num = random.randint(0, len(HTMLReader.arr)-1)
+            mainFunction.speak(HTMLReader.arr[num])
 
     if "thank you" in data:
-        speak("You're welcome")
+        mainFunction.speak("You're welcome")
 
     if "what time is it" in data:
-        speak("The time is {0}".format(str(ctime())))
+        mainFunction.speak("The time is {0}".format(str(ctime())))
 
     if "who made you" in data:
-        speak("Anh Thai")
+        mainFunction.speak("Anh Thai")
  
     if "where is" in data:
         data = data.split(" ")
@@ -118,12 +77,12 @@ def jarvis(data):
         for i in range(2, len(data)):
             say += " " + data[i]
             location += "+" + data[i]
-        speak("Hold on baby, I will show you where " + say + " is.")
+        mainFunction.speak("Hold on baby, I will show you where " + say + " is.")
         webbrowser.open_new('https://www.google.com/maps/place/{0}'.format(location))
     if "open" in data:
         data = data.split(" ")
         url = data[1]
-        speak("Opening " + url)
+        mainFunction.speak("Opening " + url)
         webbrowser.open_new('https://www.{0}.com'.format(url))
         #data = ""
     if "YouTube" in data:
@@ -153,7 +112,7 @@ def jarvis(data):
         name = data[1]
         for i in range(2, len(data)):
             name += "+" + data[i]
-        speak("Here is what I found")
+        mainFunction.speak("Here is what I found")
         webbrowser.open_new('https://www.google.com/search?q={0}'.format(name))
 
     if "friend" in data:
@@ -206,21 +165,21 @@ def greeting():
     number = random.randint(0,1)
     if number == 0:
         num = random.randint(0, len(helloArray) - 1)
-        speak(helloArray[num])
+        mainFunction.speak(helloArray[num])
     else:
-        t = ctime().split(" ")[3].split(":")[0]
-        if 0 <= t <= 11:
-            speak("Good morning baby, what can I do for you")
-        elif 12 <= t <= 18:
-            speak("Good afternoon baby, what can I do for you")
+        t = int(ctime().split(" ")[3].split(":")[0])
+        if t >= 0  and t <= 11:
+            mainFunction.speak("Good morning baby, what can I do for you")
+        elif t >= 12 and t <= 18:
+            mainFunction.speak("Good afternoon baby, what can I do for you")
         else:
-            speak("Good evening baby, what can I do for you")
+            mainFunction.speak("Good evening baby, what can I do for you")
 def greetingFriend():
     speak("Hi, my name is Jarvis. What's your name")
     data = recordAudio()
     data = data.split(" ")
     data = data[-1]
-    speak("Hi, {0}, nice to meet you".format(data))
+    mainFunction.speak("Hi, {0}, nice to meet you".format(data))
 
 dataTrain = ["zero", "one", "two", "three", "four"]
 data = ""
@@ -231,7 +190,7 @@ def train():
         list.append(float(line[0:len(line)-1]))
     #print "List " + str(list)
     index = dummySetUpTrain(list)
-    speak(dataTrain[index])
+    mainFunction.speak(dataTrain[index])
     data = recordAudio()
     if "like" in data:
         list[index] += 1
@@ -266,27 +225,20 @@ def sendMessage():
     client.messages.create(
         to="", 
         from_="", 
-        body="Goodnight!", 
+        body="Good morning", 
     )
 # initialization
 time.sleep(2)
 greeting()
-parser = MyHTMLParser()
-response = urllib2.urlopen("http://www.positivityblog.com/index.php/2014/03/19/self-esteem-quotes/") 
-#response2 = urllib2.urlopen("http://www.positivityblog.com/index.php/2017/02/08/failure-quotes/")
-#rand = random.randint(0,1)
-# if rand == 0:
-#   response = response1
-# else:
-#   response = response2
-page_source = response.read()
-parser.feed(page_source)
 while 1:
-    data = recordAudio()
+    data = mainFunction.recordAudio()
+    #print "First " + str(HTMLReader.arr)
+    #data = "tell me something"
     if "bye" in data or "leaving" in data:
-        speak("Goodbye")
+        mainFunction.speak("Goodbye")
         break
     jarvis(data)
+    #print HTMLReader.arr
     data = ""
 
 
